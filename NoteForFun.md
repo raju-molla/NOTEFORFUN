@@ -65,3 +65,19 @@ After URL decoding:
 ### 3. Directory Traversal Cheatsheet
 
 See [directory-traversal-cheatsheet.txt](directory-traversal-cheatsheet.txt) for the complete payload list. Use it as a automated in burp intruder 
+
+### 4. CSRF (Cross-Site Request Forgery)
+
+CSRF tricks a logged-in user's browser into performing an unwanted action using the user's existing session.
+
+#### How to Test
+
+Find a sensitive request, capture it, remove or change the CSRF token, resend it, and check whether the action still succeeds.
+
+#### Example
+
+Remove the CSRF token from a **change-email** request. If the email still changes and there is no other effective cross-site protection, investigate for CSRF.
+
+#### Remember
+
+A missing CSRF token alone does not prove a vulnerability. The request must be possible cross-site using the victim's authenticated session.
