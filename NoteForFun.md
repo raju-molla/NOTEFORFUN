@@ -81,3 +81,19 @@ Remove the CSRF token from a **change-email** request. If the email still change
 #### Remember
 
 A missing CSRF token alone does not prove a vulnerability. The request must be possible cross-site using the victim's authenticated session.
+
+### 5. OAuth Redirect URI Manipulation
+
+OAuth applications must strictly validate the `redirect_uri` against an allowlist of exact, pre-registered URLs. If validation is weak, an attacker may replace it with a URL they control.
+
+#### Example
+
+The victim signs in with Google and approves access. Because the application accepts the attacker-controlled `redirect_uri`, Google sends the authorization code to the attacker's site. The attacker may then try to exchange the code for tokens and access the victim's account.
+
+#### How to Test
+
+Modify the `redirect_uri` and test whether the authorization request is accepted when using an unregistered host, subdomain, path, scheme, port, URL encoding, or an open redirect.
+
+#### Remember
+
+Authorization codes are generally short-lived and bound to the client and `redirect_uri`; code interception alone may not be exploitable. Check whether PKCE is enforced and whether the token exchange requires the exact registered redirect URI.
