@@ -97,3 +97,33 @@ Modify the `redirect_uri` and test whether the authorization request is accepted
 #### Remember
 
 Authorization codes are generally short-lived and bound to the client and `redirect_uri`; code interception alone may not be exploitable. Check whether PKCE is enforced and whether the token exchange requires the exact registered redirect URI.
+
+### 6. SQL Injection and OS Command Injection
+
+#### a. SQL Injection
+
+SQL injection occurs when user input is concatenated into a database query instead of being handled with parameterized queries. For example, review parameters such as `productId=3` or `storeId=2` for unexpected changes in database behavior, errors, or response differences.
+
+Test only systems you are authorized to assess, and use non-destructive requests. A database error or a changed response is an indicator to investigate, not proof by itself.
+
+#### b. OS Command Injection
+
+OS command injection is separate from SQL injection. Appending a shell command such as `uname` to `productId` or `storeId` will not normally run it. It is relevant only if the application passes that input to an operating-system command, or if a SQL injection can reach a database feature that is explicitly capable of executing OS commands.
+
+#### c. Blind OS Command Injection
+
+Blind command injection occurs when a command may execute but its output is not returned in the HTTP response. Test for it with a measurable, non-destructive delay or an out-of-band DNS callback to an interaction server you control.
+
+Examples:
+
+- Linux/Unix timing check: `; sleep 5`
+- Windows timing check: `& timeout /t 5 /nobreak`
+- OOB check: `; nslookup blind-command-ID.example.test`
+
+Replace `blind-command-ID.example.test` with a unique domain from an authorized interaction service. Compare timing against a baseline and send OOB payloads only to infrastructure you control. A delay or callback is evidence to investigate, not proof without controls for network latency, retries, and application timeouts.
+
+See [blind-command-cheatsheet.txt](blind-command-cheatsheet.txt) for safe, non-destructive payload templates for Burp Intruder.
+
+#### Remember
+
+Do not assume that a successful SQL injection provides operating-system access. Confirm the affected layer, avoid destructive commands, and report the minimum evidence needed to demonstrate impact.

