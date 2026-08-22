@@ -64,4 +64,4 @@ After URL decoding:
 
 ### 3. Directory Traversal Cheatsheet
 
-See [directory-traversal-cheatsheet.txt](directory-traversal-cheatsheet.txt) for the complete payload list.
+See [directory-traversal-cheatsheet.txt](directory-traversal-cheatsheet.txt) for the complete payload list. Use it as a automated in burp intruder 
