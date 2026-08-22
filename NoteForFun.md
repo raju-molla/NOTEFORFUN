@@ -98,32 +98,27 @@ Modify the `redirect_uri` and test whether the authorization request is accepted
 
 Authorization codes are generally short-lived and bound to the client and `redirect_uri`; code interception alone may not be exploitable. Check whether PKCE is enforced and whether the token exchange requires the exact registered redirect URI.
 
-### 6. SQL Injection and OS Command Injection
+### 6. Injection Vulnerability
 
-#### a. SQL Injection
+An injection vulnerability occurs when an application sends untrusted user input to an interpreter or parser as instructions instead of treating it only as data. The affected component may be a database, operating-system shell, application interpreter, template engine, or another parser.
 
-SQL injection occurs when user input is concatenated into a database query instead of being handled with parameterized queries. For example, review parameters such as `productId=3` or `storeId=2` for unexpected changes in database behavior, errors, or response differences.
+#### How to Test
 
-Test only systems you are authorized to assess, and use non-destructive requests. A database error or a changed response is an indicator to investigate, not proof by itself.
+Identify parameters that influence a query, command, template, expression, or file operation. Use harmless, controlled input and compare the response, error messages, output, or timing with a normal request.
 
-#### b. OS Command Injection
+Examples include:
 
-OS command injection is separate from SQL injection. Appending a shell command such as `uname` to `productId` or `storeId` will not normally run it. It is relevant only if the application passes that input to an operating-system command, or if a SQL injection can reach a database feature that is explicitly capable of executing OS commands.
+- SQL injection in parameters such as `productId=3` or `storeId=2`
+- OS command injection when input is passed to a system shell
+- Template or expression injection when input is evaluated by an application engine
+- LDAP, XPath, or NoSQL injection when input changes a directory or data query
 
-#### c. Blind OS Command Injection
+#### Blind Injection
 
-Blind command injection occurs when a command may execute but its output is not returned in the HTTP response. Test for it with a measurable, non-destructive delay or an out-of-band DNS callback to an interaction server you control.
+Blind injection occurs when the injected result is not visible in the response. Depending on the affected interpreter, test with a measurable, non-destructive delay or an out-of-band callback to an interaction server you control.
 
-Examples:
-
-- Linux/Unix timing check: `; sleep 5`
-- Windows timing check: `& timeout /t 5 /nobreak`
-- OOB check: `; nslookup blind-command-ID.example.test`
-
-Replace `blind-command-ID.example.test` with a unique domain from an authorized interaction service. Compare timing against a baseline and send OOB payloads only to infrastructure you control. A delay or callback is evidence to investigate, not proof without controls for network latency, retries, and application timeouts.
-
-See [blind-command-cheatsheet.txt](blind-command-cheatsheet.txt) for safe, non-destructive payload templates for Burp Intruder.
+For blind OS command injection, use the payloads in [blind-command-cheatsheet.txt](blind-command-cheatsheet.txt) with Burp Intruder. Replace the callback placeholder with a unique domain from your authorized interaction service. Establish a baseline and account for latency, retries, and application timeouts.
 
 #### Remember
 
-Do not assume that a successful SQL injection provides operating-system access. Confirm the affected layer, avoid destructive commands, and report the minimum evidence needed to demonstrate impact.
+An unusual response, error, delay, or callback is an indicator to investigate, not proof by itself. Confirm which interpreter or parser is affected, avoid destructive actions, and test only systems you own or are authorized to assess.
