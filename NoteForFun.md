@@ -122,3 +122,104 @@ For blind OS command injection, use the payloads in [blind-command-cheatsheet.tx
 #### Remember
 
 An unusual response, error, delay, or callback is an indicator to investigate, not proof by itself. Confirm which interpreter or parser is affected, avoid destructive actions, and test only systems you own or are authorized to assess.
+
+### 7. Cross-Site Scripting (XSS)
+
+XSS occurs when an application includes untrusted input in a web page without the correct context-aware output encoding. The browser may then interpret the input as code and execute it on the client machine in the context of the vulnerable website.
+
+#### a. Reflected XSS
+
+The payload is included in the current request and immediately reflected in the response. Test parameters, URL paths, and headers that appear in the returned page.
+
+#### b. Stored XSS
+
+The payload is saved by the application and later rendered to other users. Check fields such as comments, profiles, messages, and support tickets, then review every page where the value is displayed.
+
+#### c. DOM-Based XSS
+
+The vulnerability occurs in client-side JavaScript when untrusted data from a source such as `location.search`, `location.hash`, or `document.referrer` reaches an unsafe sink such as `innerHTML` or `document.write`.
+
+#### How to Test
+
+Use a harmless proof of concept such as `<script>alert(document.domain)</script>` only in an authorized test environment. If the context prevents script tags, use a context-appropriate test marker and verify whether the value is safely encoded rather than trying to bypass filters.
+
+#### Remember
+
+XSS executes in the victim's browser, not directly on the server. Assess reflected, stored, and DOM-based paths separately, and confirm impact without accessing other users' data or performing unauthorized actions. Effective defenses include context-aware output encoding, safe DOM APIs, input validation, and a well-configured Content Security Policy.
+
+### 8. HTML Injection
+
+HTML injection occurs when untrusted input is inserted into a page without HTML-encoding. An attacker may change the page structure, add visible content, create links, or alter form elements. HTML injection does not automatically mean JavaScript execution; that depends on the exact rendering context and browser protections.
+
+#### Basic HTML Injection
+
+Use harmless tags to determine whether input is interpreted as HTML or displayed as text:
+
+```html
+<b>test</b>
+<i>test</i>
+<h1>test</h1>
+<img src="x">
+<a href="https://example.com">test</a>
+```
+
+#### Attribute Breakout Probes
+
+Use these probes when input is placed inside a quoted HTML attribute:
+
+```text
+">
+'>
+"><b>test</b>
+'><b>test</b>
+```
+
+#### Tag Breakout Probes
+
+Use these probes when input is placed inside an existing element:
+
+```html
+</div><b>test</b>
+</p><h1>test</h1>
+</textarea><b>test</b>
+</title><b>test</b>
+```
+
+#### Encoding and Parser Checks
+
+These values help determine whether the application decodes entities before rendering:
+
+```text
+&lt;b&gt;test&lt;/b&gt;
+&#60;b&#62;test&#60;/b&#62;
+&#x3c;b&#x3e;test&#x3c;/b&#x3e;
+```
+
+#### Context Identification
+
+Place markers in different contexts and inspect the rendered DOM and response source:
+
+```text
+HTML_TEXT_TEST
+"ATTR_DOUBLE_TEST
+'ATTR_SINGLE_TEST
+</TAG_BREAK_TEST>
+```
+
+Common contexts to audit include:
+
+```html
+<div>USER_INPUT</div>
+<input value="USER_INPUT">
+<a href="USER_INPUT">link</a>
+<style>USER_INPUT</style>
+<script>USER_INPUT</script>
+```
+
+#### How to Test
+
+Test only authorized applications. Identify where the value is inserted, compare the raw response with the rendered DOM, and check whether special characters are encoded for that specific context. Treat script, style, URL, and event-handler contexts as higher-risk areas because incorrect handling may lead to XSS or other client-side issues.
+
+#### Remember
+
+The correct defense is context-aware output encoding and safe DOM APIs. Do not rely on stripping a few tags or characters, because HTML parsing differs across contexts. Validate URLs separately, avoid unsafe sinks such as `innerHTML` when possible, and use a restrictive Content Security Policy as defense in depth.
